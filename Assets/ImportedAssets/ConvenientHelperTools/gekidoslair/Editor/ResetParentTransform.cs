@@ -6,7 +6,7 @@ namespace MWU.Shared.Utilities
 {
     public static class ResetParentTransform
     {
-        [MenuItem("Tools/Edit/Reset Parent Transform %_r")]
+        [MenuItem("Tools/Edit/Reset Parent Transform %#r")]
         public static void DistributeObjectsEvenly()
         {
             var selectedObjects = Selection.gameObjects;
