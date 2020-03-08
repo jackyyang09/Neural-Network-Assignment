@@ -31,14 +31,18 @@ public class CarController : MonoBehaviour
     float maxSpeed = 1.0f;
 
     float turn = 0.0f;
+    [SerializeField]
+    float turnAngle = 5
+    [SerializeField]
+    float acceleration = 1
 
-    TrackFitness currentTrack;
-
+    [SerializeField]
+    float brake = 0.5f
+    TrackFitness currentTrack
     float currentFitness = 0;
 
     [SerializeField]
-    float totalFitness = 0;
-
+    float totalFitness = 0
     // Start is called before the first frame update
     void Start()
     {
@@ -46,7 +50,7 @@ public class CarController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (!crashed)
         {
@@ -101,24 +105,24 @@ public class CarController : MonoBehaviour
 
     void Accelerate()
     {
-        speed = Mathf.Min(maxSpeed, speed + 0.1f);
+        speed = Mathf.Min(maxSpeed, speed + acceleration * Time.fixedDeltaTime);
     }
 
     void Deccelerate()
     {
-        speed = Mathf.Max(0, speed - 0.05f);
+        speed = Mathf.Max(0, speed - brake * Time.fixedDeltaTime);
     }
 
     void Turn()
     {
         if (leftDiagonal > rightDiagonal)
         {
-            turn -= 0.05f;
+            turn -= turnAngle * Time.fixedDeltaTime;
         }
 
         else if (rightDiagonal > leftDiagonal)
         {
-            turn += 0.05f;
+            turn += turnAngle * Time.fixedDeltaTime;
         }
 
         rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
