@@ -32,7 +32,12 @@ public class CarController : MonoBehaviour
 
     float turn = 0.0f;
 
+    TrackFitness currentTrack;
 
+    float currentFitness = 0;
+
+    [SerializeField]
+    float totalFitness = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -125,6 +130,24 @@ public class CarController : MonoBehaviour
         {
             crashed = true;
             speed = 0;
+            totalFitness += currentFitness;
+            currentFitness = 0;
+        }
+
+        if (collision.gameObject.tag.Equals("Road"))
+        {
+            currentTrack = collision.gameObject.GetComponent<TrackFitness>();
+            totalFitness += currentFitness;
+            currentFitness = 0;
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.tag.Equals("Road"))
+        {
+            if (currentTrack != null)
+                currentFitness = currentTrack.GetFitness(transform);
         }
     }
 }
