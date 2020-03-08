@@ -32,17 +32,17 @@ public class CarController : MonoBehaviour
 
     float turn = 0.0f;
     [SerializeField]
-    float turnAngle = 5
+    float turnAngle = 5;
     [SerializeField]
-    float acceleration = 1
+    float acceleration = 1;
 
     [SerializeField]
-    float brake = 0.5f
-    TrackFitness currentTrack
+    float brake = 0.5f;
+    TrackFitness currentTrack;
     float currentFitness = 0;
 
     [SerializeField]
-    float totalFitness = 0
+    float totalFitness = 0;
     // Start is called before the first frame update
     void Start()
     {
