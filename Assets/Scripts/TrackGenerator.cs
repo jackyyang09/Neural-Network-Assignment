@@ -10,6 +10,11 @@ public class TrackGenerator : MonoBehaviour
     [SerializeField]
     float generationDelay;
 
+    [SerializeField]
+    float destroyDelay;
+    [SerializeField]
+    float initialDestroyDelay;
+
     Transform lastEndPoint;
 
     /// <summary>
@@ -22,12 +27,9 @@ public class TrackGenerator : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
         }
 
-        GenerateNewTrackPiece();
-        GenerateNewTrackPiece();
-        GenerateNewTrackPiece();
-
         //Replace this in the future by having the car call 
-        InvokeRepeating("GenerateNewTrackPiece", generationDelay, generationDelay);
+        InvokeRepeating("GenerateNewTrackPiece", 0, generationDelay);
+        InvokeRepeating("RemovePreviousTrackPiece", destroyDelay + initialDestroyDelay, destroyDelay);
     }
 
     public void GenerateNewTrackPiece()
@@ -51,5 +53,13 @@ public class TrackGenerator : MonoBehaviour
     public void RemovePreviousTrackPiece()
     {
         Destroy(transform.GetChild(0).gameObject);
+    }
+
+    public void TryAgain()
+    {
+        Transform newTrack = transform.GetChild(transform.childCount - 2);
+        lastEndPoint = newTrack.GetChild(newTrack.childCount - 1);
+        CancelInvoke("GenerateNewTrackPiece");
+        InvokeRepeating("GenerateNewTrackPiece", 0, generationDelay);
     }
 }

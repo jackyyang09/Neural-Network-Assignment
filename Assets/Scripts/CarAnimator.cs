@@ -5,14 +5,25 @@ using UnityEngine;
 public class CarAnimator : MonoBehaviour
 {
     [SerializeField]
+    Vector3 followOffset = new Vector3(0, -1, 0);
+
+    [SerializeField]
     List<float> rotations;
 
     [SerializeField]
     int samples;
 
     [SerializeField]
-    [Range(-3f, 3f)]
+    Vector2 turnRange = new Vector2();
+
+    [SerializeField]
     float turn;
+
+    [SerializeField]
+    float turnDecay;
+
+    [SerializeField]
+    float magicLerpValue = 0.1f;
 
     Rigidbody rb;
 
@@ -20,12 +31,16 @@ public class CarAnimator : MonoBehaviour
 
     Vector3 prevDir;
 
+    [SerializeField]
     Transform car;
+    CarController carC;
+    [SerializeField]
+    float tireSpinMultiplier = 1;
 
     // Start is called before the first frame update
     void Start()
     {
-        car = transform.parent;
+        carC = car.GetComponent<CarController>();
         rb = GetComponentInParent<Rigidbody>();
         anim = GetComponent<Animator>();
         rotations = new List<float>();
@@ -34,13 +49,13 @@ public class CarAnimator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        transform.position = car.transform.position + followOffset;
+        transform.rotation = Quaternion.Lerp(transform.rotation, car.rotation, magicLerpValue);
+
         Vector3 curDir = car.forward;
         float curDelta = Vector3.SignedAngle(curDir, prevDir, car.up);
 
-        turn += curDelta;
-        turn = Mathf.Clamp(turn, -3, 3);
-
-        // Do some smoothing
+        //// Do some smoothing
         rotations.Add(curDelta);
         if (rotations.Count > samples)
         {
@@ -54,9 +69,14 @@ public class CarAnimator : MonoBehaviour
                 average += rotations[i];
             }
             average /= samples;
-            turn = average;
-            anim.SetFloat("Drift", Mathf.InverseLerp(-3, 3, turn));
+            turn += average;
         }
+
+        turn = Mathf.MoveTowards(turn, 0, turnDecay * Time.deltaTime);
+        turn = Mathf.Clamp(turn, turnRange.x, turnRange.y);
+
+        anim.SetFloat("Drift", Mathf.InverseLerp(turnRange.x, turnRange.y, turn));
+        anim.SetFloat("Speed", carC.GetSpeed() * tireSpinMultiplier);
 
         prevDir = curDir;
     }
