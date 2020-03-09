@@ -15,6 +15,8 @@ public class CarAnimator : MonoBehaviour
 
     [SerializeField]
     Vector2 turnRange = new Vector2();
+    [SerializeField]
+    float maxRotationDelta;
 
     [SerializeField]
     float turn;
@@ -52,28 +54,31 @@ public class CarAnimator : MonoBehaviour
         transform.position = car.transform.position + followOffset;
         transform.rotation = Quaternion.Lerp(transform.rotation, car.rotation, magicLerpValue);
 
-        Vector3 curDir = car.forward;
+        Vector3 curDir = transform.forward;
         float curDelta = Vector3.SignedAngle(curDir, prevDir, car.up);
 
         //// Do some smoothing
-        rotations.Add(curDelta);
-        if (rotations.Count > samples)
-        {
-            rotations.RemoveAt(0);
-        }
-        if (rotations.Count == samples)
-        {
-            float average = 0;
-            for (int i = 0; i < samples; i++)
-            {
-                average += rotations[i];
-            }
-            average /= samples;
-            turn += average;
-        }
+        //rotations.Add(curDelta);
+        //if (rotations.Count > samples)
+        //{
+        //    rotations.RemoveAt(0);
+        //}
+        //if (rotations.Count == samples)
+        //{
+        //    float average = 0;
+        //    for (int i = 0; i < samples; i++)
+        //    {
+        //        average += rotations[i];
+        //    }
+        //    average /= samples;
+        //    turn += average;
+        //}
+        turn = curDelta;
 
+        //turn = Mathf.MoveTowards(curDelta, turn + curDelta, maxRotationDelta * Time.deltaTime);
+        //
         turn = Mathf.MoveTowards(turn, 0, turnDecay * Time.deltaTime);
-        turn = Mathf.Clamp(turn, turnRange.x, turnRange.y);
+        //turn = Mathf.Clamp(turn, turnRange.x, turnRange.y);
 
         anim.SetFloat("Drift", Mathf.InverseLerp(turnRange.x, turnRange.y, turn));
         anim.SetFloat("Speed", carC.GetSpeed() * tireSpinMultiplier);
