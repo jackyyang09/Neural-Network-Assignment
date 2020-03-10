@@ -10,6 +10,9 @@ public class CarController : MonoBehaviour
     bool crashed = false;
 
     [SerializeField]
+    float[] distances;
+
+    [SerializeField]
     float forwardDistance = 0;
 
     [SerializeField]
@@ -50,6 +53,7 @@ public class CarController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        distances = new float[5] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         rb = GetComponent<Rigidbody>();
         trackGen = FindObjectOfType<TrackGenerator>();
     }
@@ -60,18 +64,39 @@ public class CarController : MonoBehaviour
         if (!crashed)
         {
             CastRays();
-            Steer();
             Move();
         }
     }
 
     void CastRays()
     {
-        forwardDistance = GetRayDistance(transform.forward);
-        leftDistance = GetRayDistance(-transform.right);
-        rightDistance = GetRayDistance(transform.right);
-        leftDiagonal = GetRayDistance((transform.forward - transform.right).normalized);
-        rightDiagonal = GetRayDistance((transform.forward + transform.right).normalized);
+        distances[0] = GetRayDistance(transform.forward);
+        distances[1] = GetRayDistance(-transform.right);
+        distances[2] = GetRayDistance(transform.right);
+        distances[3] = GetRayDistance((transform.forward - transform.right).normalized);
+        distances[4] = GetRayDistance((transform.forward + transform.right).normalized);
+
+        float max = -50;
+        float min = 50;
+
+        for (int i = 0; i < distances.Length; i++)
+        {
+            if (distances[i] > max)
+                max = distances[i];
+
+            if (distances[i] < min)
+                min = distances[i];
+        }
+
+        for (int i = 0; i < distances.Length; i++)
+        {
+            distances[i] = UtilMath.Lmap(distances[i], min, max, 0.0f, 1.0f);
+        }
+    }
+
+    public float GetDistance(int i)
+    {
+        return distances[i];
     }
 
     float GetRayDistance(Vector3 dir)
@@ -105,16 +130,39 @@ public class CarController : MonoBehaviour
     void Move()
     {
         rb.MovePosition(transform.position + (transform.forward * speed));
+        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
+
     }
 
-    void Accelerate()
+    public void Accelerate()
     {
+        Debug.Log("Acc");
+
         speed = Mathf.Min(maxSpeed, speed + acceleration * Time.fixedDeltaTime);
     }
 
-    void Deccelerate()
+    public void Deccelerate()
     {
+        Debug.Log("Decc");
+
         speed = Mathf.Max(0, speed - brake * Time.fixedDeltaTime);
+    }
+
+    public void TurnLeft()
+    {
+        Debug.Log("Left");
+        turn -= turnAngle * Time.fixedDeltaTime;
+        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
+
+    }
+
+    public void TurnRight()
+    {
+        Debug.Log("Right");
+
+        turn += turnAngle * Time.fixedDeltaTime;
+        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
+
     }
 
     void Turn()

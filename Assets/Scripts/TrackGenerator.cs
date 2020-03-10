@@ -27,6 +27,10 @@ public class TrackGenerator : MonoBehaviour
             Destroy(transform.GetChild(i).gameObject);
         }
 
+        GenerateNewTrackPiece();
+        GenerateNewTrackPiece();
+        GenerateNewTrackPiece();
+
         //Replace this in the future by having the car call 
         InvokeRepeating("GenerateNewTrackPiece", 0, generationDelay);
         InvokeRepeating("RemovePreviousTrackPiece", destroyDelay + initialDestroyDelay, destroyDelay);
