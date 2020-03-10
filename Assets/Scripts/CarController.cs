@@ -38,16 +38,20 @@ public class CarController : MonoBehaviour
 
     [SerializeField]
     float brake = 0.5f;
-
     TrackFitness currentTrack;
     float currentFitness = 0;
 
     [SerializeField]
     float totalFitness = 0;
+    int prevFitness;
+
+    TrackGenerator trackGen;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        trackGen = FindObjectOfType<TrackGenerator>();
     }
 
     // Update is called once per frame
@@ -60,7 +64,6 @@ public class CarController : MonoBehaviour
             Move();
         }
     }
-
 
     void CastRays()
     {
@@ -145,14 +148,27 @@ public class CarController : MonoBehaviour
             totalFitness += currentFitness;
             currentFitness = 0;
         }
+
+        if (totalFitness % (float)prevFitness > 1)
+        {
+            prevFitness = (int)totalFitness % prevFitness;
+            trackGen.RemovePreviousTrackPiece();
+        }
     }
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.tag.Equals("Road"))
+        if (collision.gameObject.CompareTag("Road"))
         {
             if (currentTrack != null)
+            {
                 currentFitness = currentTrack.GetFitness(transform);
+            }
         }
+    }
+
+    public float GetSpeed()
+    {
+        return speed;
     }
 }
