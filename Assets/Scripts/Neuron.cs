@@ -14,14 +14,16 @@ public class Neuron
     float _currentActivation = 0.0f;
     float _minThreshold = 0.5f;
     float _maxThreshold = 1.0f;
+    float _bias = 0.0f;
 
     float _activationThreshold;
 
-    UnityEvent activationFunction = new UnityEvent();    
+    UnityEvent activationFunction = new UnityEvent();
 
     public Neuron()
     {
         _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
+        _bias = Random.Range(0.0f, _minThreshold / 2.0f);
     }
 
     public Neuron(List<Neuron> p, UnityAction func = null)
@@ -35,8 +37,9 @@ public class Neuron
         }
 
         _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
+        _bias = Random.Range(0.0f, _minThreshold);
 
-        if(func != null)
+        if (func != null)
             activationFunction.AddListener(func);
     }
 
@@ -48,6 +51,8 @@ public class Neuron
 
             _currentActivation += inputs[i] * weights[i];
         }
+
+        _currentActivation += _bias;
 
         if (_currentActivation >= _activationThreshold)
         {
@@ -80,5 +85,32 @@ public class Neuron
             _output = 0.0f;
 
         _currentActivation = 0.0f;
+    }
+
+    public List<float> GetWeights()
+    {
+        return weights;
+    }
+
+    public float GetBias()
+    {
+        return _bias;
+    }
+
+    public float GetActivationThreshold()
+    {
+        return _activationThreshold;
+    }
+
+    public void Mutate(Neuron otherNeuron)
+    {
+        for (int i = 0; i < weights.Count; i++)
+        {
+            weights[i] = otherNeuron.GetWeights()[i] * Random.Range(0.85f, 1.15f);
+        }
+
+        _bias = otherNeuron.GetBias() * Random.Range(0.85f, 1.15f);
+
+        _activationThreshold = otherNeuron.GetActivationThreshold() * Random.Range(0.85f, 1.15f);
     }
 }

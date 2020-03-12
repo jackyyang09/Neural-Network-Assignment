@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CarController : MonoBehaviour
 {
@@ -50,12 +51,15 @@ public class CarController : MonoBehaviour
 
     TrackGenerator trackGen;
 
+    UnityAction _onCrash;
+
     // Start is called before the first frame update
     void Start()
     {
         distances = new float[5] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         rb = GetComponent<Rigidbody>();
         trackGen = FindObjectOfType<TrackGenerator>();
+        _onCrash += NeuralNetMaster.Instance.CheckCrashes;
     }
 
     // Update is called once per frame
@@ -77,20 +81,16 @@ public class CarController : MonoBehaviour
         distances[4] = GetRayDistance((transform.forward + transform.right).normalized);
 
         float max = -50;
-        float min = 50;
 
         for (int i = 0; i < distances.Length; i++)
         {
             if (distances[i] > max)
                 max = distances[i];
-
-            if (distances[i] < min)
-                min = distances[i];
         }
 
         for (int i = 0; i < distances.Length; i++)
         {
-            distances[i] = UtilMath.Lmap(distances[i], min, max, 0.0f, 1.0f);
+            distances[i] = UtilMath.Lmap(distances[i], 0.0f, max, 0.0f, 1.0f);
         }
     }
 
@@ -152,7 +152,7 @@ public class CarController : MonoBehaviour
     {
         Debug.Log("Left");
         turn -= turnAngle * Time.fixedDeltaTime;
-        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
+        //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
 
     }
 
@@ -161,7 +161,7 @@ public class CarController : MonoBehaviour
         Debug.Log("Right");
 
         turn += turnAngle * Time.fixedDeltaTime;
-        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
+        //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
 
     }
 
@@ -180,17 +180,18 @@ public class CarController : MonoBehaviour
         rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
     }
 
-    private void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag.Equals("Rail"))
+        if (collision.collider.tag.Equals("Rail"))
         {
             crashed = true;
             speed = 0;
             totalFitness += currentFitness;
             currentFitness = 0;
+            _onCrash.Invoke();
         }
 
-        if (collision.gameObject.tag.Equals("Road"))
+        if (collision.collider.tag.Equals("Road"))
         {
             currentTrack = collision.gameObject.GetComponent<TrackFitness>();
             totalFitness += currentFitness;
@@ -218,5 +219,21 @@ public class CarController : MonoBehaviour
     public float GetSpeed()
     {
         return speed;
+    }
+
+    public bool GetCrashed()
+    {
+        return crashed;
+    }
+
+    public void Init()
+    {
+        crashed = false;
+        turn = 0.0f;
+        speed = 1.0f;
+
+        currentFitness = 0.0f;
+        totalFitness = 0.0f;
+        prevFitness = 0;
     }
 }

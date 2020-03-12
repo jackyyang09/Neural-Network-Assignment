@@ -41,7 +41,6 @@ public class NeuralNetwork : MonoBehaviour
         _outputNodes.Add(new Neuron(_hiddenLayer, controller.Deccelerate));
         _outputNodes.Add(new Neuron(_hiddenLayer, controller.TurnLeft));
         _outputNodes.Add(new Neuron(_hiddenLayer, controller.TurnRight));
-
     }
 
     // Update is called once per frame
@@ -65,6 +64,40 @@ public class NeuralNetwork : MonoBehaviour
         foreach (Neuron n in _outputNodes)
         {
             n.CheckParents();
+        }
+    }
+
+    public List<Neuron> GetInputNodes()
+    {
+        return _inputNodes;
+    }
+
+    public List<Neuron> GetHiddenLayer()
+    {
+        return _hiddenLayer;
+    }
+
+    public List<Neuron> GetOutputNodes()
+    {
+        return _outputNodes;
+    }
+
+    public void MutateNeurons(NeuralNetwork otherNetwork)
+    {
+        
+        for (int i = 0; i < _inputNodes.Count; i++)
+        {
+            _inputNodes[i].Mutate(otherNetwork.GetInputNodes()[i]);
+        }
+
+        for (int i = 0; i < _hiddenLayer.Count; i++)
+        {
+            _hiddenLayer[i].Mutate(otherNetwork.GetHiddenLayer()[i]);
+        }
+
+        for (int i = 0; i < _outputNodes.Count; i++)
+        {
+            _outputNodes[i].Mutate(otherNetwork.GetOutputNodes()[i]);
         }
     }
 }
