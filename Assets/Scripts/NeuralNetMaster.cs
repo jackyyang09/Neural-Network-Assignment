@@ -18,6 +18,8 @@ public class NeuralNetMaster : MonoBehaviour
 
     [SerializeField]
     FollowCamera cam;
+    [SerializeField]
+    float cameraUpdateFrequency;
 
     NeuralNetwork _mostFit;
 
@@ -46,8 +48,9 @@ public class NeuralNetMaster : MonoBehaviour
             neuralNets.Add(carParent.transform.GetChild(i).GetComponent<NeuralNetwork>());
             carControllers.Add(carParent.transform.GetChild(i).GetComponent<CarController>());
         }
-    }
 
+        InvokeRepeating("SetCameraToMostFit", 0, cameraUpdateFrequency);
+    }
 
     public void CheckCrashes()
     {
@@ -84,5 +87,30 @@ public class NeuralNetMaster : MonoBehaviour
                 highest = carControllers[i].GetFitness();
             }
         }
+    }
+
+    public void SetCameraToMostFit()
+    {
+        cam.target = GetFit().transform;
+    }
+
+    /// <summary>
+    /// Returns the most fit car
+    /// </summary>
+    /// <returns></returns>
+    public CarController GetFit()
+    {
+        float highest = -1;
+        CarController selected = carControllers[0]; // Default
+        foreach (CarController c in carControllers)
+        {
+            float newHighest = Mathf.Max(c.GetFitness(), highest);
+            if (newHighest != highest)
+            {
+                selected = c;
+                highest = newHighest;
+            }
+        }
+        return selected;
     }
 }
