@@ -11,9 +11,13 @@ public class NeuralNetMaster : MonoBehaviour
     List<GameObject> cars = new List<GameObject>();
 
     List<NeuralNetwork> neuralNets = new List<NeuralNetwork>();
+    List<CarController> carControllers = new List<CarController>();
 
     [SerializeField]
     TrackGenerator trackGenerator;
+
+    [SerializeField]
+    FollowCamera cam;
 
     NeuralNetwork _mostFit;
 
@@ -40,28 +44,27 @@ public class NeuralNetMaster : MonoBehaviour
         {
             cars.Add(carParent.transform.GetChild(i).gameObject);
             neuralNets.Add(carParent.transform.GetChild(i).GetComponent<NeuralNetwork>());
+            carControllers.Add(carParent.transform.GetChild(i).GetComponent<CarController>());
         }
     }
 
 
     public void CheckCrashes()
     {
-        foreach (GameObject go in cars)
+        for (int i = 0; i < neuralNets.Count; i++)
         {
-            if (go.GetComponent<CarController>().GetCrashed() == false)
-                return;
-
+            if (!carControllers[i].GetCrashed()) return;
         }
 
         FindFittest();
 
-        foreach (GameObject go in cars)
+        for (int i = 0; i < neuralNets.Count; i++)
         {
-            if (!go.GetComponent<NeuralNetwork>().Equals(_mostFit))
-                go.GetComponent<NeuralNetwork>().MutateNeurons(_mostFit.GetComponent<NeuralNetwork>());
+            if (!neuralNets[i].Equals(_mostFit))
+                neuralNets[i].MutateNeurons(_mostFit);
 
-            go.transform.SetPositionAndRotation(transform.position, transform.rotation);
-            go.GetComponent<CarController>().Init();            
+            neuralNets[i].transform.SetPositionAndRotation(transform.position, transform.rotation);
+            carControllers[i].Init();
         }
 
         //Reset
@@ -73,12 +76,12 @@ public class NeuralNetMaster : MonoBehaviour
     {
         float highest = -Mathf.Infinity;
 
-        foreach (GameObject go in cars)
+        for (int i = 0; i < carControllers.Count; i++)
         {
-            if (go.GetComponent<CarController>().GetFitness() > highest)
+            if (carControllers[i].GetFitness() > highest)
             {
-                _mostFit = go.GetComponent<NeuralNetwork>();
-                highest = go.GetComponent<CarController>().GetFitness();
+                _mostFit = neuralNets[i];
+                highest = carControllers[i].GetFitness();
             }
         }
     }
