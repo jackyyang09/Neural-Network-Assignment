@@ -25,8 +25,7 @@ public class TrackGenerator : MonoBehaviour
         Init();
 
         //Replace this in the future by having the car call 
-        InvokeRepeating("GenerateNewTrackPiece", 0, generationDelay);
-        InvokeRepeating("RemovePreviousTrackPiece", destroyDelay + initialDestroyDelay, destroyDelay);
+
     }
 
     public void Init()
@@ -41,6 +40,11 @@ public class TrackGenerator : MonoBehaviour
         GenerateNewTrackPiece();
         GenerateNewTrackPiece();
         GenerateNewTrackPiece();
+        CancelInvoke("GenerateNewTrackPiece");
+        CancelInvoke("RemovePreviousTrackPiece");
+
+        InvokeRepeating("GenerateNewTrackPiece", 0, generationDelay);
+        InvokeRepeating("RemovePreviousTrackPiece", destroyDelay + initialDestroyDelay, destroyDelay);
     }
 
     public void GenerateNewTrackPiece()

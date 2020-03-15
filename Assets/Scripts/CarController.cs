@@ -32,7 +32,7 @@ public class CarController : MonoBehaviour
     float speed = 0.5f;
 
     [SerializeField]
-    float maxSpeed = 1.0f;
+    float maxSpeed = 0.5f;
 
     float turn = 0.0f;
     [SerializeField]
@@ -129,6 +129,7 @@ public class CarController : MonoBehaviour
 
     void Move()
     {
+        
         rb.MovePosition(transform.position + (transform.forward * speed));
         rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
 
@@ -136,21 +137,24 @@ public class CarController : MonoBehaviour
 
     public void Accelerate()
     {
-        Debug.Log("Acc");
+        //Debug.Log("Acc");
 
-        speed = Mathf.Min(maxSpeed, speed + acceleration * Time.fixedDeltaTime);
+        speed = Mathf.Clamp(speed + acceleration * Time.fixedDeltaTime, 0.1f, maxSpeed);
+        //speed = Mathf.Min(maxSpeed, speed + acceleration * Time.fixedDeltaTime);
     }
 
     public void Deccelerate()
     {
-        Debug.Log("Decc");
+        //Debug.Log("Decc");
 
-        speed = Mathf.Max(0, speed - brake * Time.fixedDeltaTime);
+        speed = Mathf.Clamp(speed - brake * Time.fixedDeltaTime, 0.1f, maxSpeed);
+
+        //speed = Mathf.Max(0, speed - brake * Time.fixedDeltaTime);
     }
 
     public void TurnLeft()
     {
-        Debug.Log("Left");
+        //Debug.Log("Left");
         turn -= turnAngle * Time.fixedDeltaTime;
         //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
 
@@ -158,7 +162,7 @@ public class CarController : MonoBehaviour
 
     public void TurnRight()
     {
-        Debug.Log("Right");
+        //Debug.Log("Right");
 
         turn += turnAngle * Time.fixedDeltaTime;
         //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
@@ -193,16 +197,17 @@ public class CarController : MonoBehaviour
 
         if (collision.collider.tag.Equals("Road"))
         {
+            Debug.Log("RoadCollision");
             currentTrack = collision.gameObject.GetComponent<TrackFitness>();
-            totalFitness += currentFitness;
+            totalFitness += 1;
             currentFitness = 0;
         }
 
-        if (totalFitness % (float)prevFitness > 1)
-        {
-            prevFitness = (int)totalFitness % prevFitness;
-            trackGen.RemovePreviousTrackPiece();
-        }
+        //if (totalFitness % (float)prevFitness > 1)
+        //{
+        //    prevFitness = (int)totalFitness % prevFitness;
+        //    trackGen.RemovePreviousTrackPiece();
+        //}
     }
 
     private void OnCollisionStay(Collision collision)
@@ -224,6 +229,11 @@ public class CarController : MonoBehaviour
     public bool GetCrashed()
     {
         return crashed;
+    }
+
+    public float GetFitness()
+    {
+        return totalFitness;
     }
 
     public void Init()
