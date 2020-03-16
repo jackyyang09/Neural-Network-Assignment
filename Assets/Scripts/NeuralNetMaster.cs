@@ -23,6 +23,10 @@ public class NeuralNetMaster : MonoBehaviour
 
     NeuralNetwork _mostFit;
 
+    public delegate void OnReset();
+
+    public event OnReset onReset;
+
     private static NeuralNetMaster _instance;
 
     public static NeuralNetMaster Instance
@@ -72,7 +76,7 @@ public class NeuralNetMaster : MonoBehaviour
 
         //Reset
         //trackGenerator.Init();
-        
+        onReset?.Invoke(); //Invoke event
     }
 
     void FindFittest()
