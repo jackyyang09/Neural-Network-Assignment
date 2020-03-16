@@ -45,23 +45,32 @@ public class Neuron
             activationFunction.AddListener(func);
     }
 
+    /// <summary>
+    /// Perform calculations on the individual neuron
+    /// </summary>
     public void CheckParents()
     {
+        // Receive input from our parent nodes
         for (int i = 0; i < parents.Count; i++)
         {
             inputs[i] = parents[i].GetOutput();
 
-            _currentActivation += inputs[i] * weights[i];
+            // Apply weights to the inputs
+            _currentActivation += inputs[i] * weights[i]; 
         }
 
+        // Apply our bias level, as if we're using one
         _currentActivation += _bias;
 
+        // Is this value significant enough?
         if (_currentActivation >= _activationThreshold)
         {
+            // Round our input to 1 cause no value this high matters
             _output = 1.0f;
+            // Invokes the neuron's designated car-related function
             activationFunction.Invoke();
         }
-
+        // It's a dud, register it as 0
         else
             _output = 0.0f;
 
@@ -76,13 +85,15 @@ public class Neuron
     //Used for input nodes, because they have no parents, and are just taking world input
     public void SetInput(float input)
     {
+        //Our input is just the input
         _currentActivation = input;
 
+        // Is this value significant enough?
         if (_currentActivation >= _activationThreshold)
         {
             _output = 1.0f;
         }
-
+        // It's a dud, register it as 0
         else
             _output = 0.0f;
 
@@ -104,15 +115,23 @@ public class Neuron
         return _activationThreshold;
     }
 
+    /// <summary>
+    /// Mutates the current neuron's weights and other parameters based on another neuron,
+    /// usually the one with the highest fitness
+    /// </summary>
+    /// <param name="otherNeuron"></param>
     public void Mutate(Neuron otherNeuron)
     {
+        // Increase/Decrease weights by a random modifier of size mutationAmount
         for (int i = 0; i < weights.Count; i++)
         {
             weights[i] = otherNeuron.GetWeights()[i] * Random.Range(1.0f - mutationAmount, 1.0f+ mutationAmount);
         }
 
+        // Increase/Decrease bias by a random modifier of size mutationAmount
         _bias = otherNeuron.GetBias() * Random.Range(1.0f - mutationAmount, 1.0f + mutationAmount);
 
+        // Increase/Decrease activation threshold by a random modifier of size mutationAmount
         _activationThreshold = otherNeuron.GetActivationThreshold() * Random.Range(1.0f - mutationAmount, 1.0f + mutationAmount);
     }
 }
