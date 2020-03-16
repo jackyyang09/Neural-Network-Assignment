@@ -53,7 +53,7 @@ public class NeuralNetMaster : MonoBehaviour
             carControllers.Add(carParent.transform.GetChild(i).GetComponent<CarController>());
         }
 
-        InvokeRepeating("SetCameraToMostFit", 0, cameraUpdateFrequency);
+        StartCoroutine(SetCameraToMostFit());
     }
 
     public void CheckCrashes()
@@ -93,9 +93,13 @@ public class NeuralNetMaster : MonoBehaviour
         }
     }
 
-    public void SetCameraToMostFit()
+    IEnumerator SetCameraToMostFit()
     {
-        cam.target = GetFit().transform;
+        while (true)
+        {
+            cam.target = GetFit().transform;
+            yield return new WaitForSecondsRealtime(cameraUpdateFrequency);
+        }
     }
 
     /// <summary>
@@ -108,6 +112,7 @@ public class NeuralNetMaster : MonoBehaviour
         CarController selected = carControllers[0]; // Default
         foreach (CarController c in carControllers)
         {
+            if (c.GetCrashed()) continue;
             float newHighest = Mathf.Max(c.GetFitness(), highest);
             if (newHighest != highest)
             {
@@ -116,5 +121,26 @@ public class NeuralNetMaster : MonoBehaviour
             }
         }
         return selected;
+    }
+
+    /// <summary>
+    /// Returns the most fit car
+    /// </summary>
+    /// <returns></returns>
+    public NeuralNetwork GetFittestNetwork()
+    {
+        float highest = -1;
+        CarController selected = carControllers[0]; // Default
+        foreach (CarController c in carControllers)
+        {
+            if (c.GetCrashed()) continue;
+            float newHighest = Mathf.Max(c.GetFitness(), highest);
+            if (newHighest != highest)
+            {
+                selected = c;
+                highest = newHighest;
+            }
+        }
+        return selected.GetComponent<NeuralNetwork>();
     }
 }

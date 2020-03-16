@@ -115,6 +115,11 @@ public class Neuron
         return _activationThreshold;
     }
 
+    public bool Activated()
+    {
+        return _output == 1;
+    }
+
     /// <summary>
     /// Mutates the current neuron's weights and other parameters based on another neuron,
     /// usually the one with the highest fitness
