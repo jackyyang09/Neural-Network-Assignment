@@ -21,11 +21,6 @@ public class ConnectionVisualizer : MonoBehaviour
         }
     }
 
-    public void Init()
-    {
-
-    }
-
     public void SetWeight(int x, float weight)
     {
         connections[x].startWidth = Mathf.Lerp(lineWidth.x, lineWidth.y, weight);

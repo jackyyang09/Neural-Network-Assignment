@@ -45,13 +45,13 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        mostFit.text = NeuralNetMaster.Instance.GetFit().name;
+        mostFit.text = NeuralNetMaster.Instance.GetSelectedCar().name;
         UpdateNetworkVisualizer();
     }
 
     void UpdateNetworkVisualizer()
     {
-        NeuralNetwork fit = NeuralNetMaster.Instance.GetFittestNetwork();
+        NeuralNetwork fit = NeuralNetMaster.Instance.GetSelectedCar();
 
         List<Neuron> inputNodes = fit.GetInputNodes();
         for (int i = 0; i < inputNodes.Count; i++)

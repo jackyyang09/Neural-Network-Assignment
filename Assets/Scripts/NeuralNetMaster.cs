@@ -21,6 +21,8 @@ public class NeuralNetMaster : MonoBehaviour
     [SerializeField]
     float cameraUpdateFrequency;
 
+    int selectedCar;
+
     NeuralNetwork _mostFit;
 
     public delegate void OnReset();
@@ -45,15 +47,12 @@ public class NeuralNetMaster : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         for(int i = 0; i < carParent.transform.childCount; i++)
         {
             cars.Add(carParent.transform.GetChild(i).gameObject);
             neuralNets.Add(carParent.transform.GetChild(i).GetComponent<NeuralNetwork>());
             carControllers.Add(carParent.transform.GetChild(i).GetComponent<CarController>());
         }
-
-        StartCoroutine(SetCameraToMostFit());
     }
 
     public void CheckCrashes()
@@ -93,6 +92,20 @@ public class NeuralNetMaster : MonoBehaviour
         }
     }
 
+    public void ToggleHyperCam(bool b)
+    {
+        if (b) StartCoroutine(SetCameraToMostFit());
+        else
+        {
+            StopCoroutine(SetCameraToMostFit());
+        }
+    }
+
+    public NeuralNetwork GetSelectedCar()
+    {
+        return neuralNets[selectedCar];
+    }
+
     IEnumerator SetCameraToMostFit()
     {
         while (true)
@@ -120,6 +133,7 @@ public class NeuralNetMaster : MonoBehaviour
                 highest = newHighest;
             }
         }
+        selectedCar = carControllers.IndexOf(selected);
         return selected;
     }
 
@@ -141,6 +155,7 @@ public class NeuralNetMaster : MonoBehaviour
                 highest = newHighest;
             }
         }
+        selectedCar = carControllers.IndexOf(selected);
         return selected.GetComponent<NeuralNetwork>();
     }
 }
