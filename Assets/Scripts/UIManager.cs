@@ -28,6 +28,9 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     Text mostFit;
 
+    [SerializeField]
+    Text simSpeed;
+
     //[SerializeField]
     //LineRenderer 
 
@@ -46,6 +49,18 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         mostFit.text = NeuralNetMaster.Instance.GetSelectedCar().name;
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Time.timeScale = Mathf.Repeat(Time.timeScale + 1, 11);
+            simSpeed.text = "Simulation Speed: " + Time.timeScale.ToString();
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Time.timeScale = Mathf.Repeat(Time.timeScale - 1, 11);
+            simSpeed.text = "Simulation Speed: " + Time.timeScale.ToString();
+        }
+
         UpdateNetworkVisualizer();
     }
 
