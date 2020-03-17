@@ -36,6 +36,8 @@ public class NeuralNetMaster : MonoBehaviour
 
     public event OnReset onReset;
 
+    Coroutine targetSearchRoutine;
+
     private static NeuralNetMaster _instance;
 
     public static NeuralNetMaster Instance
@@ -64,12 +66,23 @@ public class NeuralNetMaster : MonoBehaviour
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        if (targetSearchRoutine == null)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                selectedCar = (int)Mathf.Repeat(selectedCar - 1, neuralNets.Count);
+            }
 
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                selectedCar = (selectedCar + 1) % neuralNets.Count;
+            }
+            cam.target = carControllers[selectedCar].transform;
+            timer += Time.deltaTime;
+        }
         if (timer >= generationTimer)
             NewGeneration();
-    }
-
+    }    
     public void CheckCrashes()
     {
         for (int i = 0; i < neuralNets.Count; i++)
@@ -131,10 +144,14 @@ public class NeuralNetMaster : MonoBehaviour
 
     public void ToggleHyperCam(bool b)
     {
-        if (b) StartCoroutine(SetCameraToMostFit());
+        if (b)
+        {
+            targetSearchRoutine = StartCoroutine(SetCameraToMostFit());
+        } 
         else
         {
             StopCoroutine(SetCameraToMostFit());
+            targetSearchRoutine = null;
         }
     }
 
