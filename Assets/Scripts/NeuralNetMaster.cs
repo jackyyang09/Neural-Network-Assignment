@@ -29,6 +29,8 @@ public class NeuralNetMaster : MonoBehaviour
 
     public event OnReset onReset;
 
+    Coroutine targetSearchRoutine;
+
     private static NeuralNetMaster _instance;
 
     public static NeuralNetMaster Instance
@@ -52,6 +54,23 @@ public class NeuralNetMaster : MonoBehaviour
             cars.Add(carParent.transform.GetChild(i).gameObject);
             neuralNets.Add(carParent.transform.GetChild(i).GetComponent<NeuralNetwork>());
             carControllers.Add(carParent.transform.GetChild(i).GetComponent<CarController>());
+        }
+    }
+
+    private void Update()
+    {
+        if (targetSearchRoutine == null)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                selectedCar = (int)Mathf.Repeat(selectedCar - 1, neuralNets.Count);
+            }
+
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                selectedCar = (selectedCar + 1) % neuralNets.Count;
+            }
+            cam.target = carControllers[selectedCar].transform;
         }
     }
 
@@ -94,10 +113,14 @@ public class NeuralNetMaster : MonoBehaviour
 
     public void ToggleHyperCam(bool b)
     {
-        if (b) StartCoroutine(SetCameraToMostFit());
+        if (b)
+        {
+            targetSearchRoutine = StartCoroutine(SetCameraToMostFit());
+        } 
         else
         {
             StopCoroutine(SetCameraToMostFit());
+            targetSearchRoutine = null;
         }
     }
 
