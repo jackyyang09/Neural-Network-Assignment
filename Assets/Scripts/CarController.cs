@@ -34,7 +34,9 @@ public class CarController : MonoBehaviour
     [SerializeField]
     float maxSpeed = 0.5f;
 
+    [SerializeField]
     float turn = 0.0f;
+
     [SerializeField]
     float turnAngle = 5;
     [SerializeField]
@@ -43,11 +45,13 @@ public class CarController : MonoBehaviour
     [SerializeField]
     float brake = 0.5f;
     TrackFitness currentTrack;
+    TrackFitness prevTrack;
     float currentFitness = 0;
 
     [SerializeField]
     float totalFitness = 0;
-    int prevFitness;
+
+    List<GameObject> touchedTracks = new List<GameObject>();
 
     TrackGenerator trackGen;
 
@@ -114,25 +118,11 @@ public class CarController : MonoBehaviour
             return Mathf.Infinity;
     }
 
-    void Steer()
-    {
-        if (forwardDistance < 5.0f)
-        {
-            Deccelerate();
-        }
-
-        else
-            Accelerate();
-
-        Turn();
-    }
-
     void Move()
     {
         
         rb.MovePosition(transform.position + (transform.forward * speed));
         rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
-
     }
 
     public void Accelerate()
@@ -188,18 +178,23 @@ public class CarController : MonoBehaviour
     {
         if (collision.collider.tag.Equals("Rail"))
         {
+            currentTrack = null;
             crashed = true;
             speed = 0;
-            totalFitness += currentFitness;
+            //totalFitness += currentFitness;
             currentFitness = 0;
             _onCrash.Invoke();
         }
 
         if (collision.collider.tag.Equals("Road"))
         {
-            Debug.Log("RoadCollision");
-            currentTrack = collision.gameObject.GetComponent<TrackFitness>();
-            totalFitness += 1;
+            if (!touchedTracks.Contains(collision.gameObject))
+            {
+                touchedTracks.Add(collision.gameObject);
+                totalFitness += 1;
+
+            }
+            currentTrack = collision.gameObject.GetComponentInChildren<TrackFitness>();
             currentFitness = 0;
         }
 
@@ -238,12 +233,15 @@ public class CarController : MonoBehaviour
 
     public void Init()
     {
+        touchedTracks.Clear();
+
+        transform.SetPositionAndRotation(transform.parent.position, transform.parent.rotation);
+
         crashed = false;
         turn = 0.0f;
-        speed = 1.0f;
+        speed = maxSpeed/2.0f;
 
         currentFitness = 0.0f;
         totalFitness = 0.0f;
-        prevFitness = 0;
     }
 }

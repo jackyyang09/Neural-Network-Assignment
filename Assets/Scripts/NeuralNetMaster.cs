@@ -1,9 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class NeuralNetMaster : MonoBehaviour
 {
+    float timer = 0;
+    [SerializeField]
+    float generationTimer = 10.0f;
+
     [SerializeField]
     GameObject carParent;
 
@@ -22,6 +27,8 @@ public class NeuralNetMaster : MonoBehaviour
     float cameraUpdateFrequency;
 
     int selectedCar;
+
+    List<NeuralNetwork> sortedNets = new List<NeuralNetwork>();
 
     NeuralNetwork _mostFit;
 
@@ -55,6 +62,14 @@ public class NeuralNetMaster : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        timer += Time.deltaTime;
+
+        if (timer >= generationTimer)
+            NewGeneration();
+    }
+
     public void CheckCrashes()
     {
         for (int i = 0; i < neuralNets.Count; i++)
@@ -62,14 +77,20 @@ public class NeuralNetMaster : MonoBehaviour
             if (!carControllers[i].GetCrashed()) return;
         }
 
+        NewGeneration();
+    }
+
+    void NewGeneration()
+    {
+        timer = 0;
         FindFittest();
 
-        for (int i = 0; i < neuralNets.Count; i++)
+        for (int i = 0; i < sortedNets.Count; i++)
         {
-            if (!neuralNets[i].Equals(_mostFit))
-                neuralNets[i].MutateNeurons(_mostFit);
+            if(i >= (sortedNets.Count / 2))
+                sortedNets[i].MutateNeurons(sortedNets[0]);
 
-            neuralNets[i].transform.SetPositionAndRotation(transform.position, transform.rotation);
+            //sortedNets[i].transform.SetPositionAndRotation(transform.position, transform.rotation);
             carControllers[i].Init();
         }
 
@@ -80,16 +101,32 @@ public class NeuralNetMaster : MonoBehaviour
 
     void FindFittest()
     {
-        float highest = -Mathf.Infinity;
+        //sortedNets.Clear();
+        //
+        //while (sortedNets.Count < neuralNets.Count)
+        //{
+        //    float highest = -Mathf.Infinity;
+        //    int highestIndex = 0;
+        //
+        //    for (int i = 0; i < carControllers.Count; i++)
+        //    {
+        //        if (carControllers[i].GetFitness() > highest)
+        //        {
+        //            if (!sortedNets.Contains(neuralNets[i]))
+        //            {
+        //                highestIndex = i;
+        //                highest = carControllers[i].GetFitness();
+        //            }
+        //        }
+        //    }
+        //
+        //    sortedNets.Add(neuralNets[highestIndex]);
+        //}   
 
-        for (int i = 0; i < carControllers.Count; i++)
-        {
-            if (carControllers[i].GetFitness() > highest)
-            {
-                _mostFit = neuralNets[i];
-                highest = carControllers[i].GetFitness();
-            }
-        }
+        sortedNets = neuralNets.OrderByDescending(n => n.GetComponent<CarController>().GetFitness()).ToList();
+
+        //neuralNets = neuralNets.Sort((n1, n2) => n1.gameObject.GetComponent<CarController>().GetFitness().CompareTo(n2.gameObject.GetComponent<CarController>().GetFitness()));
+
     }
 
     public void ToggleHyperCam(bool b)

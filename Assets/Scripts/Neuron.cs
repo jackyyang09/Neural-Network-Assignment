@@ -16,9 +16,11 @@ public class Neuron
     float _maxThreshold = 1.0f;
     float _bias = 0.0f;
 
-    float mutationAmount = 0.15f;
+    float mutationAmount = 0.1f;
 
     float _activationThreshold;
+
+    float randomProbability = 0.2f;
 
     UnityEvent activationFunction = new UnityEvent();
 
@@ -127,16 +129,35 @@ public class Neuron
     /// <param name="otherNeuron"></param>
     public void Mutate(Neuron otherNeuron)
     {
+        float prob;
         // Increase/Decrease weights by a random modifier of size mutationAmount
         for (int i = 0; i < weights.Count; i++)
         {
-            weights[i] = otherNeuron.GetWeights()[i] * Random.Range(1.0f - mutationAmount, 1.0f+ mutationAmount);
+            prob = Random.Range(0.0f, 1.0f);
+
+            if (prob > randomProbability)
+                weights[i] = Random.Range(0.0f, 1.0f);
+
+            else
+                weights[i] = otherNeuron.GetWeights()[i] * Random.Range(1 - mutationAmount, 1 + mutationAmount);
         }
 
         // Increase/Decrease bias by a random modifier of size mutationAmount
-        _bias = otherNeuron.GetBias() * Random.Range(1.0f - mutationAmount, 1.0f + mutationAmount);
+        prob = Random.Range(0.0f, 1.0f);
+
+        if (prob > randomProbability)
+            _bias = Random.Range(0.0f, _minThreshold / 2.0f);
+
+        else
+            _bias = otherNeuron.GetBias() * Random.Range(1 - mutationAmount, 1 + mutationAmount);
 
         // Increase/Decrease activation threshold by a random modifier of size mutationAmount
-        _activationThreshold = otherNeuron.GetActivationThreshold() * Random.Range(1.0f - mutationAmount, 1.0f + mutationAmount);
+        prob = Random.Range(0.0f, 1.0f);
+
+        if (prob > randomProbability)
+            _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
+
+        else
+            _activationThreshold = otherNeuron.GetActivationThreshold() * Random.Range(1 - mutationAmount, 1 + mutationAmount);
     }
 }
