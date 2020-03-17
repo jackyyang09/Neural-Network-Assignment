@@ -34,6 +34,7 @@ public class Neuron
     {
         parents = p;
 
+        //Create a weight for each parent as well as a holder for the output of each parent
         for (int i = 0; i < parents.Count; i++)
         {
             weights.Add(Random.Range(0.0f, 1.0f));
@@ -41,8 +42,9 @@ public class Neuron
         }
 
         _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
-        _bias = Random.Range(0.0f, _minThreshold);
+        _bias = Random.Range(0.0f, _minThreshold / 2.0f);
 
+        //Function that will be called when the neuron fires
         if (func != null)
             activationFunction.AddListener(func);
     }
@@ -130,7 +132,10 @@ public class Neuron
     public void Mutate(Neuron otherNeuron)
     {
         float prob;
-        // Increase/Decrease weights by a random modifier of size mutationAmount
+
+        //For each weight, as well as bias and activation threshold
+        //There is a probability that we will either create a new random value
+        //Otherwise we will copy the value from the network we are mutating from & apply a slight mutation
         for (int i = 0; i < weights.Count; i++)
         {
             prob = Random.Range(0.0f, 1.0f);
@@ -138,25 +143,26 @@ public class Neuron
             if (prob > randomProbability)
                 weights[i] = Random.Range(0.0f, 1.0f);
 
+            // Increase/Decrease weights by a random modifier of size mutationAmount
             else
                 weights[i] = otherNeuron.GetWeights()[i] * Random.Range(1 - mutationAmount, 1 + mutationAmount);
         }
 
-        // Increase/Decrease bias by a random modifier of size mutationAmount
         prob = Random.Range(0.0f, 1.0f);
 
         if (prob > randomProbability)
             _bias = Random.Range(0.0f, _minThreshold / 2.0f);
 
+        // Increase/Decrease bias by a random modifier of size mutationAmount
         else
             _bias = otherNeuron.GetBias() * Random.Range(1 - mutationAmount, 1 + mutationAmount);
 
-        // Increase/Decrease activation threshold by a random modifier of size mutationAmount
         prob = Random.Range(0.0f, 1.0f);
 
         if (prob > randomProbability)
             _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
 
+        // Increase/Decrease activation threshold by a random modifier of size mutationAmount
         else
             _activationThreshold = otherNeuron.GetActivationThreshold() * Random.Range(1 - mutationAmount, 1 + mutationAmount);
     }
