@@ -14,21 +14,6 @@ public class CarController : MonoBehaviour
     float[] distances;
 
     [SerializeField]
-    float forwardDistance = 0;
-
-    [SerializeField]
-    float leftDistance = 0;
-
-    [SerializeField]
-    float rightDistance = 0;
-
-    [SerializeField]
-    float leftDiagonal = 0;
-
-    [SerializeField]
-    float rightDiagonal = 0;
-
-    [SerializeField]
     float speed = 0.5f;
 
     [SerializeField]
@@ -39,14 +24,12 @@ public class CarController : MonoBehaviour
 
     [SerializeField]
     float turnAngle = 5;
+
     [SerializeField]
     float acceleration = 1;
 
     [SerializeField]
     float brake = 0.5f;
-    TrackFitness currentTrack;
-    TrackFitness prevTrack;
-    float currentFitness = 0;
 
     /// <summary>
     /// Checks for a positive change in fitness after this many seconds
@@ -57,10 +40,10 @@ public class CarController : MonoBehaviour
     [SerializeField]
     float totalFitness = 0;
     float savedFitness;
+    float currentFitness;
 
     List<GameObject> touchedTracks = new List<GameObject>();
-
-    TrackGenerator trackGen;
+    TrackFitness currentTrack;
 
     UnityAction _onCrash;
 
@@ -69,7 +52,7 @@ public class CarController : MonoBehaviour
     {
         distances = new float[5] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         rb = GetComponent<Rigidbody>();
-        trackGen = FindObjectOfType<TrackGenerator>();
+
         _onCrash += NeuralNetMaster.Instance.CheckCrashes;
 
         InvokeRepeating("FitnessCheckup", periodicFitnessCheck, periodicFitnessCheck);
@@ -136,51 +119,22 @@ public class CarController : MonoBehaviour
 
     public void Accelerate()
     {
-        //Debug.Log("Acc");
-
         speed = Mathf.Clamp(speed + acceleration * Time.fixedDeltaTime, 0.1f, maxSpeed);
-        //speed = Mathf.Min(maxSpeed, speed + acceleration * Time.fixedDeltaTime);
     }
 
     public void Deccelerate()
     {
-        //Debug.Log("Decc");
-
         speed = Mathf.Clamp(speed - brake * Time.fixedDeltaTime, 0.1f, maxSpeed);
-
-        //speed = Mathf.Max(0, speed - brake * Time.fixedDeltaTime);
     }
 
     public void TurnLeft()
     {
-        //Debug.Log("Left");
         turn -= turnAngle * Time.fixedDeltaTime;
-        //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
-
     }
 
     public void TurnRight()
     {
-        //Debug.Log("Right");
-
         turn += turnAngle * Time.fixedDeltaTime;
-        //rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
-
-    }
-
-    void Turn()
-    {
-        if (leftDiagonal > rightDiagonal)
-        {
-            turn -= turnAngle * Time.fixedDeltaTime;
-        }
-
-        else if (rightDiagonal > leftDiagonal)
-        {
-            turn += turnAngle * Time.fixedDeltaTime;
-        }
-
-        rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
     }
 
     /// <summary>
@@ -271,7 +225,6 @@ public class CarController : MonoBehaviour
         turn = 0.0f;
         speed = maxSpeed/2.0f;
 
-        currentFitness = 0.0f;
         totalFitness = 0.0f;
         savedFitness = 0;
     }

@@ -5,6 +5,9 @@ using System.Linq;
 
 public class NeuralNetMaster : MonoBehaviour
 {
+    [SerializeField]
+    float timescale = 1.0f;
+
     float timer = 0;
     [SerializeField]
     float generationTimer = 10.0f;
@@ -66,6 +69,9 @@ public class NeuralNetMaster : MonoBehaviour
 
     private void Update()
     {
+
+        Time.timeScale = timescale;
+
         if (targetSearchRoutine == null)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -96,50 +102,22 @@ public class NeuralNetMaster : MonoBehaviour
     void NewGeneration()
     {
         timer = 0;
-        FindFittest();
 
-        for (int i = 0; i < sortedNets.Count; i++)
+        //Sort Neural Networks by their fitness
+        neuralNets = neuralNets.OrderByDescending(n => n.GetComponent<CarController>().GetFitness()).ToList();
+
+        //Mutate lower half of (sorted) networks
+        for (int i = 0; i < neuralNets.Count; i++)
         {
-            if(i >= (sortedNets.Count / 2))
-                sortedNets[i].MutateNeurons(sortedNets[0]);
+            if(i >= (neuralNets.Count / 2))
+                neuralNets[i].MutateNeurons(neuralNets[i - (neuralNets.Count / 2)]);
 
-            //sortedNets[i].transform.SetPositionAndRotation(transform.position, transform.rotation);
+            //Reset each car
             carControllers[i].Init();
         }
 
         //Reset
-        //trackGenerator.Init();
         onReset?.Invoke(); //Invoke event
-    }
-
-    void FindFittest()
-    {
-        //sortedNets.Clear();
-        //
-        //while (sortedNets.Count < neuralNets.Count)
-        //{
-        //    float highest = -Mathf.Infinity;
-        //    int highestIndex = 0;
-        //
-        //    for (int i = 0; i < carControllers.Count; i++)
-        //    {
-        //        if (carControllers[i].GetFitness() > highest)
-        //        {
-        //            if (!sortedNets.Contains(neuralNets[i]))
-        //            {
-        //                highestIndex = i;
-        //                highest = carControllers[i].GetFitness();
-        //            }
-        //        }
-        //    }
-        //
-        //    sortedNets.Add(neuralNets[highestIndex]);
-        //}   
-
-        sortedNets = neuralNets.OrderByDescending(n => n.GetComponent<CarController>().GetFitness()).ToList();
-
-        //neuralNets = neuralNets.Sort((n1, n2) => n1.gameObject.GetComponent<CarController>().GetFitness().CompareTo(n2.gameObject.GetComponent<CarController>().GetFitness()));
-
     }
 
     public void ToggleHyperCam(bool b)
