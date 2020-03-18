@@ -48,7 +48,8 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        mostFit.text = NeuralNetMaster.Instance.GetSelectedCar().name;
+        CarController selectedCar = NeuralNetMaster.Instance.GetSelectedCarController();
+        mostFit.text = selectedCar.name + " " + string.Format("{0:00.00}", selectedCar.GetFitness());
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {

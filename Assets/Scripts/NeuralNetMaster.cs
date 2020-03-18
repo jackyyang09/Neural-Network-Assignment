@@ -150,7 +150,7 @@ public class NeuralNetMaster : MonoBehaviour
         } 
         else
         {
-            StopCoroutine(SetCameraToMostFit());
+            StopCoroutine(targetSearchRoutine);
             targetSearchRoutine = null;
         }
     }
@@ -158,6 +158,11 @@ public class NeuralNetMaster : MonoBehaviour
     public NeuralNetwork GetSelectedCar()
     {
         return neuralNets[selectedCar];
+    }
+
+    public CarController GetSelectedCarController()
+    {
+        return carControllers[selectedCar];
     }
 
     IEnumerator SetCameraToMostFit()

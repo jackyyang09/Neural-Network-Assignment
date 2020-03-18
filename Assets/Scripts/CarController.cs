@@ -48,8 +48,15 @@ public class CarController : MonoBehaviour
     TrackFitness prevTrack;
     float currentFitness = 0;
 
+    /// <summary>
+    /// Checks for a positive change in fitness after this many seconds
+    /// </summary>
+    [SerializeField]
+    float periodicFitnessCheck = 5;
+
     [SerializeField]
     float totalFitness = 0;
+    float savedFitness;
 
     List<GameObject> touchedTracks = new List<GameObject>();
 
@@ -64,6 +71,8 @@ public class CarController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         trackGen = FindObjectOfType<TrackGenerator>();
         _onCrash += NeuralNetMaster.Instance.CheckCrashes;
+
+        InvokeRepeating("FitnessCheckup", periodicFitnessCheck, periodicFitnessCheck);
     }
 
     // Update is called once per frame
@@ -174,25 +183,46 @@ public class CarController : MonoBehaviour
         rb.MoveRotation(Quaternion.Euler(transform.rotation.x, transform.rotation.y + (Mathf.Rad2Deg * turn), transform.rotation.z));
     }
 
+    /// <summary>
+    /// Periodically checks for good progress, failing this benchmark will end the car's current run immediately
+    /// </summary>
+    public void FitnessCheckup()
+    {
+        float fit = totalFitness + currentFitness;
+        if (fit - savedFitness < 0.3f)
+        {
+            KYS();
+        }
+        else
+        {
+            savedFitness = fit;
+        }
+    }
+
+    public void KYS()
+    {
+        currentTrack = null;
+        crashed = true;
+        speed = 0;
+        //totalFitness += currentFitness;
+        currentFitness = 0;
+        _onCrash.Invoke();
+    }
+
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.tag.Equals("Rail"))
+        if (collision.collider.CompareTag("Rail"))
         {
-            currentTrack = null;
-            crashed = true;
-            speed = 0;
-            //totalFitness += currentFitness;
-            currentFitness = 0;
-            _onCrash.Invoke();
+            KYS();
         }
 
-        if (collision.collider.tag.Equals("Road"))
+        if (collision.collider.CompareTag("Road"))
         {
             if (!touchedTracks.Contains(collision.gameObject))
             {
                 touchedTracks.Add(collision.gameObject);
-                totalFitness += 1;
-
+                // Round to an int will act as a countermeasure if the car drives backwards
+                totalFitness = Mathf.RoundToInt(totalFitness + currentFitness);
             }
             currentTrack = collision.gameObject.GetComponentInChildren<TrackFitness>();
             currentFitness = 0;
@@ -207,7 +237,7 @@ public class CarController : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Road"))
+        if (collision.collider.CompareTag("Road"))
         {
             if (currentTrack != null)
             {
@@ -228,7 +258,7 @@ public class CarController : MonoBehaviour
 
     public float GetFitness()
     {
-        return totalFitness;
+        return totalFitness + currentFitness;
     }
 
     public void Init()
@@ -243,5 +273,6 @@ public class CarController : MonoBehaviour
 
         currentFitness = 0.0f;
         totalFitness = 0.0f;
+        savedFitness = 0;
     }
 }
