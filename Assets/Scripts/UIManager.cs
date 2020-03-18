@@ -61,7 +61,10 @@ public class UIManager : MonoBehaviour
             Time.timeScale = Mathf.Repeat(Time.timeScale - 1, 11);
             simSpeed.text = "Simulation Speed: " + Time.timeScale.ToString();
         }
+    }
 
+    private void FixedUpdate()
+    {
         UpdateNetworkVisualizer();
     }
 
@@ -91,7 +94,7 @@ public class UIManager : MonoBehaviour
         List<Neuron> outputNodes = fit.GetOutputNodes();
         for (int i = 0; i < outputNodes.Count; i++)
         {
-            outputNodeImages[i].color = (inputNodes[i].Activated()) ? Color.green : Color.white;
+            outputNodeImages[i].color = (outputNodes[i].Activated()) ? Color.green : Color.white;
             List<float> weights = outputNodes[i].GetWeights();
             for (int x = 0; x < weights.Count; x++)
             {

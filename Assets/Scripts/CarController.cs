@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/////
+// Controls car functions and parameters
+// Also tracks fitness
+//
+// Matthew Demoe
+// Danny Luk
+// Jacky Yang
+/////
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;

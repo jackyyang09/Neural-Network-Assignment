@@ -27,10 +27,4 @@ public class ConnectionVisualizer : MonoBehaviour
         connections[x].endWidth = Mathf.Lerp(lineWidth.x, lineWidth.y, weight);
         mat[x].SetColor("_Color", Color.Lerp(Color.red, Color.green, weight));
     }
-
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
 }

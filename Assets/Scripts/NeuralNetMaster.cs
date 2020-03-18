@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+/// <summary>
+/// A master class that manages the Neural Networks of all the cars in the scene
+/// 
+/// Matthew Demoe
+/// Danny Luk
+/// Jacky Yang
+/// </summary>
 public class NeuralNetMaster : MonoBehaviour
 {
-    [SerializeField]
-    float timescale = 1.0f;
-
     float timer = 0;
+    /// <summary>
+    /// Neural network regenerates automatically after this many seconds passes
+    /// </summary>
     [SerializeField]
     float generationTimer = 10.0f;
 
@@ -41,6 +48,9 @@ public class NeuralNetMaster : MonoBehaviour
 
     Coroutine targetSearchRoutine;
 
+    /// <summary>
+    /// Singleton logic
+    /// </summary>
     private static NeuralNetMaster _instance;
 
     public static NeuralNetMaster Instance
@@ -69,9 +79,7 @@ public class NeuralNetMaster : MonoBehaviour
 
     private void Update()
     {
-
-        Time.timeScale = timescale;
-
+        // Switch between targets using left and right
         if (targetSearchRoutine == null)
         {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -86,19 +94,30 @@ public class NeuralNetMaster : MonoBehaviour
             cam.target = carControllers[selectedCar].transform;
             timer += Time.deltaTime;
         }
+
+        // Create a new set of cars if the simulation goes on for too long
         if (timer >= generationTimer)
             NewGeneration();
     }    
+
+    /// <summary>
+    /// Checks if all the cars crashed or not
+    /// </summary>
     public void CheckCrashes()
     {
         for (int i = 0; i < neuralNets.Count; i++)
         {
+            // Cancel out if at least one is alive
             if (!carControllers[i].GetCrashed()) return;
         }
 
+        // Create a new generation of cars if they've all "crashed"
         NewGeneration();
     }
 
+    /// <summary>
+    /// Create a new generation of cars and mutate the less successful ones
+    /// </summary>
     void NewGeneration()
     {
         timer = 0;
@@ -120,6 +139,11 @@ public class NeuralNetMaster : MonoBehaviour
         onReset?.Invoke(); //Invoke event
     }
 
+    /// <summary>
+    /// A helper method that works with the UI to focus on the car with the highest fitness
+    /// Can be disabled
+    /// </summary>
+    /// <param name="b"></param>
     public void ToggleHyperCam(bool b)
     {
         if (b)
@@ -160,6 +184,7 @@ public class NeuralNetMaster : MonoBehaviour
     {
         float highest = -1;
         CarController selected = carControllers[0]; // Default
+        // Iterates through the array of cars and searches for the fittest
         foreach (CarController c in carControllers)
         {
             if (c.GetCrashed()) continue;
@@ -170,6 +195,7 @@ public class NeuralNetMaster : MonoBehaviour
                 highest = newHighest;
             }
         }
+        // Designate this car as the "selectedCar" for the UI to reference
         selectedCar = carControllers.IndexOf(selected);
         return selected;
     }
@@ -192,6 +218,7 @@ public class NeuralNetMaster : MonoBehaviour
                 highest = newHighest;
             }
         }
+        // Designate this car as the "selectedCar" for the UI to reference
         selectedCar = carControllers.IndexOf(selected);
         return selected.GetComponent<NeuralNetwork>();
     }

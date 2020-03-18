@@ -3,10 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Class that handles the logic for all individual neurons that compose our neural network
+/// 
+/// Danny Luk
+/// Matthew Demoe
+/// Jacky Yang
+/// </summary>
 public class Neuron
 {
+    /// <summary>
+    /// A reference to all the neurons that come before this one
+    /// </summary>
     List<Neuron> parents;
 
+    //////////////////////////////
+    // Variables relevant to 
     List<float> weights = new List<float>();
     List<float> inputs = new List<float>();
     float _output = 0.0f;
@@ -15,18 +27,35 @@ public class Neuron
     float _minThreshold = 0.5f;
     float _maxThreshold = 1.0f;
     float _bias = 0.0f;
+    //////////////////////////////
 
+    /// <summary>
+    /// A constant variable that defines amount to mutate neuron values by
+    /// </summary>
     float mutationAmount = 0.1f;
 
+    /// <summary>
+    /// Constantly shifting threshold that defines when the neuron outputs 1
+    /// </summary>
     float _activationThreshold;
 
+    /// <summary>
+    /// Constant value that defines the probability that the neuron's mutation generates
+    /// completely new values for its parameters instead
+    /// </summary>
     float randomProbability = 0.2f;
 
+    /// <summary>
+    /// Car controller function to call if the neuron outputs 1,
+    /// only applicable to output neurons
+    /// </summary>
     UnityEvent activationFunction = new UnityEvent();
 
     public Neuron()
     {
+        // Assign a random activation within a range threshold on creation
         _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
+        // Assign a random bias value within a range on creation
         _bias = Random.Range(0.0f, _minThreshold / 2.0f);
     }
 
@@ -41,7 +70,9 @@ public class Neuron
             inputs.Add(0.0f);
         }
 
+        // Assign a random activation within a range threshold on creation
         _activationThreshold = Random.Range(_minThreshold, _maxThreshold);
+        // Assign a random bias value within a range on creation
         _bias = Random.Range(0.0f, _minThreshold / 2.0f);
 
         //Function that will be called when the neuron fires
